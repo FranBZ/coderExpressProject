@@ -10,24 +10,21 @@ app.listen(PORT, () => {
 
 app.use(express.json())
 
-app.get('/productos', (req, res) => {   
+app.get('/productos', async (req, res) => {   
 
-    (async () => {
         const data = await contenedor1.getAll()
         res.send(data)
-    })()
 })
 
 
-app.get('/productoRandom', (req, res) => { 
+app.get('/productoRandom', async (req, res) => { 
 
-    (async () => {
         const productos = await contenedor1.getAll()
         const IDs = productos.map(({ id }) => id)
         const randID = Math.floor(Math.random() * (IDs.length));
         const randProd = await contenedor1.getById(IDs[randID])
         res.send(randProd)
-    })()
+
 })
 
 
