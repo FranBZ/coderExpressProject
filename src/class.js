@@ -12,37 +12,29 @@ class Contenedor {
 
   constructor (fileName) {  // Constuctor, recibe como parametro el nombre del archivo
     this.fileName = fileName  // Nombre del archivo
-    this.products = []        // Array de productos
-    this.id = 1               // Contador de IDs
-  }
-
-  getId () {   // Retorna ID
-    return this.id
-  }
-
-  increaseID () { // Incrementa el ID
-    this.id += 1
-  }
-
-  getProducts () {  // Retorna el array de productos
-    return this.products
   }
 
   async save (product) {  // Guarda un archivo nuevo con todos los productos
 
-    const id = this.getId()   // Obtenemos el ID que podemos usar para nuestro nuevo producto
-    this.increaseID()       // Incrementamos el ID para Su posterior uso en caso de nuevos productos
-    product.id = id          // Agregamos el ID al objeto que nos pasan por parametros
-    this.products.push(product)  // Pusheamos el producto en el array de productos
-    const data = JSON.stringify(this.products, null, 2)  // pasamos a string el producto para poder escribirlo en el txt
     try {
-      await fs.writeFile(this.fileName, data, err => {  // Creamos el archivo y lo escribimos con los objetos del array
-        if(err) throw err
-      })
-      console.log('Producto guardado con éxito - N° ID asignado:', id)
-    } catch (error) {
-      console.error(`El error es ${error}`)
-    }
+            if (fs.existsSync(this.fileName)){                                              // Si existe
+                const data = await this.readAndParseFile(this.fileName)                     // Nos traemos la info parseada a JSON del archivo leido
+                const idProduct = data[data.length -1].id + 1                               // Asignamos el ID siguiente al ultimo asignado
+                product.id = idProduct                                                      // Insertamos el ID en el producto
+                data.push(product)                                                          // Pusheamos el producto en el array
+                await fs.writeFile(this.fileName, JSON.stringify(data, null, 2), err => {   // Creamos el archivo y lo escribimos con los objetos del array
+                    if(err) throw err
+                })
+            } else {                                                                        // Si no existe
+                product.id = 1                                                              // Asignamos ID 1 al rpoducto
+                const data = [product]                                                      // Pusheamos el producto en el array
+                await fs.writeFile(this.fileName, JSON.stringify(data, null, 2), err => {   // Creamos el archivo y lo escribimos con los objetos del array
+                    if(err) throw err
+                })
+            }     
+      } catch (error) {
+            console.error(`El error es: ${error}`)
+      }
   }
 
   async readAndParseFile (file) {  // Esta funcion se utiliza para leer el archivo y parsear a JSON la informacion, para su posterior uso
