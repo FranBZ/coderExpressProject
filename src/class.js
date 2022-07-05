@@ -10,13 +10,26 @@ const fs = require('fs')
 
 class Contenedor {
 
-  constructor (fileName) {  // Constuctor, recibe como parametro el nombre del archivo
-    this.fileName = fileName  // Nombre del archivo
-  }
+    constructor (fileName) {        // Constuctor, recibe como parametro el nombre del archivo
+        this.fileName = fileName    // Nombre del archivo
+    }
 
-  async save (product) {  // Guarda un archivo nuevo con todos los productos
+    async readAndParseFile (file) {  // Esta funcion se utiliza para leer el archivo y parsear a JSON la informacion, para su posterior uso
 
-    try {
+        try {
+            const data = await fs.promises.readFile(file, 'utf-8', (err, data) => {         // Consultamos por la informacion
+            if(err) throw err
+            return data
+            })
+            return JSON.parse(data)                                                         // Retornamos la informacion parseada
+        } catch (error) {
+            console.error(`El error es: ${error}`)
+        }
+    }
+
+    async save (product) {        // Guarda un archivo nuevo en el array de productos
+
+        try {
             if (fs.existsSync(this.fileName)){                                              // Si existe
                 const data = await this.readAndParseFile(this.fileName)                     // Nos traemos la info parseada a JSON del archivo leido
                 const idProduct = data[data.length -1].id + 1                               // Asignamos el ID siguiente al ultimo asignado
@@ -32,70 +45,55 @@ class Contenedor {
                     if(err) throw err
                 })
             }     
-      } catch (error) {
+        } catch (error) {
             console.error(`El error es: ${error}`)
-      }
-  }
-
-  async readAndParseFile (file) {  // Esta funcion se utiliza para leer el archivo y parsear a JSON la informacion, para su posterior uso
-
-    try {
-      const data = await fs.promises.readFile(file, 'utf-8', (err, data) => {  // Consultamos por la informacion
-        if(err) throw err
-        return data
-      })
-      return JSON.parse(data)  // Retornamos la informacion parseada
-    } catch (error) {
-      console.error(`El error es: ${error}`)
+        }
     }
-  } 
 
-  async getById (id) {  // Esta funcion devuelve un producto segun su ID
+    async getById (id) {    // Esta funcion devuelve un producto segun su ID
 
-    try {
-      const data = await this.readAndParseFile(this.fileName)  // Nos traemos la info parseada a JSON del archivo leido
-      const object = data.filter(product => product.id == id)  // Filtramos por ID y lo retornamos
-      if (object.length !== 0) { return object } else { return null }      // Comprobamos si el array esta vacio o hay algun elemento e imprimimos por consola
-    } catch (error) {
-      return `El error es: ${error}`
+        try {
+            const data = await this.readAndParseFile(this.fileName)                         // Nos traemos la info parseada a JSON del archivo leido
+            const object = data.filter(product => product.id == id)                         // Filtramos por ID y lo retornamos
+            if (object.length !== 0) { return object } else { return null }                 // Comprobamos si el array esta vacio o hay algun elemento e imprimimos por consola
+        
+        } catch (error) {
+            console.error(`El error es: ${error}`)
+        }
     }
-  }
 
-  async getAll () {  // Esta funcion devuelve todos los productos del archivo
-    try {
-      const data = await this.readAndParseFile(this.fileName) // Nos traemos la info parseada a JSON del archivo leido e imprimimos por consola
-      return data
-    } catch (error) {
-      console.error(`El error es: ${error}`)
+    async getAll () {  // Esta funcion devuelve todos los productos del archivo
+        try {
+            const data = await this.readAndParseFile(this.fileName)                         // Nos traemos la info parseada a JSON del archivo leido e imprimimos por consola
+            return data
+        } catch (error) {
+            console.error(`El error es: ${error}`)
+        }
     }
-  }
 
-  async deleteById (id) { // Esta funcion devuelve un producto segun su ID
-    try {
-      const data = await this.readAndParseFile(this.fileName)
-      let newData = data.filter(product => product.id != id)
+    async deleteById (id) { // Esta funcion devuelve un producto segun su ID
+        try {
+            const data = await this.readAndParseFile(this.fileName)
+            let newData = data.filter(product => product.id != id)
 
-      await fs.writeFile(this.fileName, JSON.stringify(newData, null, 2), err => {
-      if(err) throw err
-      console.log('Producto borrado con éxito')
-    })
+            await fs.writeFile(this.fileName, JSON.stringify(newData, null, 2), err => {
+            if(err) throw err
+            })
 
-    } catch (error) {
-      console.error(`El error es: ${error}`)
+        } catch (error) {
+            console.error(`El error es: ${error}`)
+        }
     }
-  }
 
-  async delteAll () { //Esta funcion elimina todos los productos
-    try {
-      this.products = []  // Reasignamos un array vacio al array de productos
-      await fs.writeFile(this.fileName, '[]', err => { // No eliminamos los productos, sino que reescribimos el archivo con un array vacio
-        if(err) throw err
-        console.log('Archivo vaciado con éxito')
-      })
-    } catch (error) {
-      console.error(`El error es: ${error}`)
+    async delteAll () {     //Esta funcion elimina todos los productos
+        try {
+            await fs.writeFile(this.fileName, '[]', err => {         // No eliminamos los productos, sino que reescribimos el archivo con un array vacio
+            if(err) throw err
+            })
+        } catch (error) {
+            console.error(`El error es: ${error}`)
+        }
     }
-  }
 }
 
 module.exports = Contenedor  // Exportamos la clase

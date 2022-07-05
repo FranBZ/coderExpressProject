@@ -20,8 +20,13 @@ const objeto2 = {
 
 // Cargando productos manualmente
 
-contenedor1.save(objeto0)
-contenedor1.save(objeto1)
-contenedor1.save(objeto2)
+const cargarContainer = async () => {
+  await contenedor1.save(objeto0)
+  await contenedor1.save(objeto1)
+  await contenedor1.save(objeto2)
+}
+
+cargarContainer()
+
 
 module.exports = contenedor1
