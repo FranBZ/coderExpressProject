@@ -44,8 +44,8 @@ class Contenedor {
                 const data = [product]                                                              // Pusheamos el producto en el array
                 await fs.promises.writeFile(this.fileName, JSON.stringify(data, null, 2), err => {  // Creamos el archivo y lo escribimos con los objetos del array
                     if(err) throw err
-                    console.log(`El ID asignado a ${product.title} es: 1`)
                 })
+                console.log(`El ID asignado a ${product.title} es: 1`)
             }     
         } catch (error) {
             console.error(`El error es: ${error}`)
